@@ -7,10 +7,10 @@
 %    n  = 100  observations
 %    p  = 20   features
 %    x1 ~ N(0,1)
-%    x2  = x1 + N(0,1)          ← deliberately collinear with x1
-%    x3, ..., xp ~ N(0,1)       ← noise features
-%    beta = (1, -0.5, 0, ..., 0)  ← only first two coefficients nonzero
-%    error SD = 0.5              ← fixed (no SNR sweep)
+%    x2  = x1 + N(0,1)          <- deliberately collinear with x1
+%    x3, ..., xp ~ N(0,1)       <- noise features
+%    beta = (1, -0.5, 0, ..., 0)  <- only first two coefficients nonzero
+%    error SD = 0.5              <- fixed (no SNR sweep)
 %
 %  Key difference from Scenario 1
 %  --------------------------------
@@ -23,10 +23,10 @@
 %  ----------------
 %    UniLASSO, UniMCP, UniSCAD   (via  unisparse with method='all')
 %
-%  Output
-%  ------
-%    ONE CSV file (all methods, all reps):
-%      Output_scenario_2_methodname_all_n_100_p20_design_counterexample_SNR_fixed_rho_NA_rep<NREPS>.csv
+%  Outputs
+%  -------
+%    One CSV per method (3 files), one row per replication:
+%      Output_scenario_2_methodname_<M>_n_100_p20_design_counterexample_SNR_fixed_rho_NA_rep<REP>.csv
 % =========================================================================
 
 clc;
@@ -75,13 +75,10 @@ tol         = 1e-4;
 
 method_keys   = {'UNILASSO', 'UNIMCP', 'UNISCAD'};
 method_labels = {'UniLASSO', 'UniMCP', 'UniSCAD'};
-n_methods     = numel(method_labels);
 
 % =========================================================================
-% 4.  Single accumulator for ALL rows  (all methods x all reps)
+% 4.  Replication loop
 % =========================================================================
-all_rows = [];
-
 fprintf('\n=================================================================\n');
 fprintf(' Scenario %d | Counter-example | n=%d | p=%d | sigma=%.2f\n', ...
         SCENARIO_NUM, n_obs, p, sigma_eps);
@@ -90,18 +87,17 @@ fprintf(' x1~N(0,1),  x2 = x1 + N(0,1),  x3..xp ~ N(0,1)\n');
 fprintf(' Methods: UniLASSO, UniMCP, UniSCAD\n');
 fprintf('=================================================================\n');
 
-% =========================================================================
-% 5.  Replication loop
-% =========================================================================
+scenario_results = struct();
+
 for rep = 1:n_reps
 
     % --------------------------------------------------------------------
-    % 5a.  Deterministic seed per (scenario, rep)
+    % 4a.  Deterministic seed per (scenario, rep)
     % --------------------------------------------------------------------
     rng(SCENARIO_NUM * 10000 + rep);
 
     % --------------------------------------------------------------------
-    % 5b.  Generate dataset
+    % 4b.  Generate dataset
     % --------------------------------------------------------------------
     [X, y, beta0_true, beta_true, ~, snr_emp] = ...
         generate_scenario2_data(n_obs, p, sigma_eps);
@@ -109,13 +105,13 @@ for rep = 1:n_reps
     fprintf('\n rep %d/%d | empirical SNR = %.3f\n', rep, n_reps, snr_emp);
 
     % --------------------------------------------------------------------
-    % 5c.  Fit UniLASSO, UniMCP, UniSCAD in one call
+    % 4c.  Fit UniLASSO, UniMCP, UniSCAD in one call
     % --------------------------------------------------------------------
     fit = unisparse(X, y, lambda_grid, nfolds, 'all', ...
                     [], [], [], [], a_scad, gamma_mcp);
 
     % --------------------------------------------------------------------
-    % 5d.  Compute metrics for all methods
+    % 4d.  Compute metrics for all methods
     % --------------------------------------------------------------------
     metrics_table = summarize_unisparse_methods( ...
                         fit, beta0_true, beta_true, X, y, tol);
@@ -125,44 +121,45 @@ for rep = 1:n_reps
     end
 
     % --------------------------------------------------------------------
-    % 5e.  Accumulate rows  (one row per method per rep)
+    % 4e.  Save one CSV per method  — same save_scenario_csv as scenario 1
+    %      SNR_LABEL = 'fixed'  (no SNR sweep; sigma is constant)
+    %      RHO_LABEL = 'NA'     (no compound-symmetry rho)
     % --------------------------------------------------------------------
-    for k = 1:n_methods
+    for k = 1:numel(method_keys)
 
         row_idx     = strcmp(metrics_table.Method, method_labels{k});
         metrics_row = metrics_table(row_idx, :);
 
         if isempty(metrics_row)
             warning('scenario2:missingMethod', ...
-                    'No row for method %s — skipping.', method_labels{k});
+                    'No row found for method %s — skipping CSV.', ...
+                    method_labels{k});
             continue;
         end
 
-        % Provenance columns specific to Scenario 2
+        % Append provenance columns
         metrics_row.EmpiricalSNR = snr_emp;
         metrics_row.Sigma        = sigma_eps;
         metrics_row.Rep          = rep;
 
-        if isempty(all_rows)
-            all_rows = metrics_row;
-        else
-            all_rows = [all_rows; metrics_row]; %#ok<AGROW>
-        end
+        save_scenario_csv( ...
+            metrics_row, SCENARIO_NUM, method_labels{k}, ...
+            n_obs, p, DESIGN_LABEL, SNR_LABEL, RHO_LABEL, rep, out_dir);
     end
+
+    % --------------------------------------------------------------------
+    % 4f.  Store for in-workspace inspection
+    % --------------------------------------------------------------------
+    scenario_results(rep).snr_empirical = snr_emp;
+    scenario_results(rep).sigma_eps     = sigma_eps;
+    scenario_results(rep).beta0_true    = beta0_true;
+    scenario_results(rep).beta_true     = beta_true;
+    scenario_results(rep).fit           = fit;
+    scenario_results(rep).metrics_table = metrics_table;
 
 end % rep loop
 
-% =========================================================================
-% 6.  Write ONE CSV  (all methods + all reps)
-% =========================================================================
-fprintf('\n--- Saving CSV ---\n');
-
-if isempty(all_rows)
-    warning('scenario2:noRows', 'No rows collected — CSV not written.');
-else
-    save_scenario2_csv( ...
-        all_rows, SCENARIO_NUM, 'all', ...
-        n_obs, p, DESIGN_LABEL, RHO_LABEL, n_reps, out_dir);
-end
-
-fprintf(' Done.  CSV written to:  %s\n', out_dir);
+fprintf('\n=================================================================\n');
+fprintf(' Done.  CSVs written to:  %s\n', out_dir);
+fprintf(' In-workspace variable:   scenario_results\n');
+fprintf('=================================================================\n');

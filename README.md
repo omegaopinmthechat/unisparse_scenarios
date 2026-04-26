@@ -10,3 +10,9 @@ simulation_study/
 3 methods × 3 SNR levels 
 
 output/Output_scenario_<>_methodname_<>_n_<>_p<>_design_<>_SNR_<>_rho_<>_rep<>.csv
+
+# Scenario 1:
+![s1](image.png)
+
+# Scenario 2:
+![s2](image-1.png)

@@ -56,7 +56,7 @@ true_p      = 20;     % number of truly nonzero features
 rho         = 0.5;    % pairwise feature correlation
 
 n_reps      = 1;      % number of independent replications per condition
-                      % (increase for Monte-Carlo averages, e.g. n_reps=100)
+                      % (increase for Monte-Carlo averages, e.g. n_reps=100)    
 
 % Noise levels: target SNR  <1 → low,  ~1 → medium,  >2 → high
 snr_labels  = {'low',  'medium', 'high'};
@@ -164,7 +164,4 @@ for i = 1:numel(snr_targets)
     end % rep loop
 end % SNR loop
 
-fprintf('\n=================================================================\n');
 fprintf(' Done.  CSVs written to:  %s\n', out_dir);
-fprintf(' In-workspace variable:   scenario_results\n');
-fprintf('=================================================================\n');

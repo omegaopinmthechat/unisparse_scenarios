@@ -1,14 +1,23 @@
-simulation_study/
-├── scenario1.m              ← main driver script
-├── supp_funs/
-│   ├── generate_scenario1_data.m   ← data-generation function
-│   ├── summarize_unisparse_methods.m ← metrics table builder
-│   ├── compute_sparse_metrics.m    ← TPR/FPR/MCC/RMSE/MAD/MSE
-│   └── save_scenario_csv.m         ← named-CSV writer
-└── output/                  ← auto-created; one CSV per run
+## Project Structure
 
+```text
+scenarios/
+├── README.md
+├── scenario1.m
+├── scenario2.m
+├── supp_funs/
+│   ├── compute_sparse_metrics.m
+│   ├── generate_scenario1_data.m
+│   ├── generate_scenario2_data.m
+│   ├── save_scenario_csv.m
+│   └── summarize_unisparse_methods.m
+└── output/
+```
+
+# scenario output
 3 methods × 3 SNR levels 
 
+# output file:
 output/Output_scenario_<>_methodname_<>_n_<>_p<>_design_<>_SNR_<>_rho_<>_rep<>.csv
 
 # Scenario 1:

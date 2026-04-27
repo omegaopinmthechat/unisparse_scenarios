@@ -25,3 +25,6 @@ output/Output_scenario_<>_methodname_<>_n_<>_p<>_design_<>_SNR_<>_rho_<>_rep<>.c
 
 # Scenario 2:
 ![s2](image-1.png)
+
+# Scenario 3:
+![s3](image-2.png)

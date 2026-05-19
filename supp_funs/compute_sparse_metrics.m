@@ -63,7 +63,7 @@ function m = compute_sparse_metrics(beta_hat, beta_true_whole, yhat, y, tol)
     beta_mad  = mean(abs(beta_hat  - beta_true_whole));
 
     % Prediction MSE
-    full_mse  = mean((y - yhat).^2);
+    full_rmse  = sqrt(mean((y - yhat).^2));
 
-    m = [tpr, fpr, mcc, beta_rmse, beta_mad, full_mse];
+    m = [tpr, fpr, mcc, beta_rmse, beta_mad, full_rmse];
 end

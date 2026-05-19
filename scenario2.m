@@ -102,6 +102,11 @@ for rep = 1:n_reps
     [X, y, beta0_true, beta_true, ~, snr_emp] = ...
         generate_scenario2_data(n_obs, p, sigma_eps);
 
+    save_generated_data(X, y, beta0_true, beta_true, sigma_eps, snr_emp, ...
+        SCENARIO_NUM, n_obs, p, 2, DESIGN_LABEL, SNR_LABEL, RHO_LABEL, rep, out_dir);
+
+    
+
     fprintf('\n rep %d/%d | empirical SNR = %.3f\n', rep, n_reps, snr_emp);
 
     % --------------------------------------------------------------------

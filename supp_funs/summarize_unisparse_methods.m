@@ -18,7 +18,7 @@ function metrics_table = summarize_unisparse_methods(fit, beta0_true, beta_true,
 %
 %   OUTPUT
 %     metrics_table  3-row MATLAB table with columns:
-%       Method  Lambda  TPR  FPR  FDR  MCC  MSE  NNZ
+%       Method  Lambda  TPR  FPR  FDR  MCC  RMSE  NNZ
 %       BetaRMSE  BetaMAD
 %
 %   Helper called:  compute_sparse_metrics   (must be on the MATLAB path)
@@ -37,7 +37,7 @@ function metrics_table = summarize_unisparse_methods(fit, beta0_true, beta_true,
     fpr_vals      = nan(n_methods, 1);
     fdr_vals      = nan(n_methods, 1);
     mcc_vals      = nan(n_methods, 1);
-    mse_vals      = nan(n_methods, 1);
+    rmse_vals      = nan(n_methods, 1);
     nnz_vals      = nan(n_methods, 1);
     beta_rmse_vals = nan(n_methods, 1);
     beta_mad_vals  = nan(n_methods, 1);
@@ -54,7 +54,7 @@ function metrics_table = summarize_unisparse_methods(fit, beta0_true, beta_true,
         beta_hat = fit.(key).beta(:);                    % (p+1) x 1
         yhat     = beta_hat(1) + X * beta_hat(2:end);   % n x 1
 
-        % Core metrics vector: [TPR, FPR, MCC, BetaRMSE, BetaMAD, MSE]
+        % Core metrics vector: [TPR, FPR, MCC, BetaRMSE, BetaMAD, RMSE]
         m = compute_sparse_metrics(beta_hat, beta_true_whole, yhat, y, tol);
 
         % FDR = FP / (TP + FP)  — computed separately for clarity
@@ -73,7 +73,7 @@ function metrics_table = summarize_unisparse_methods(fit, beta0_true, beta_true,
         mcc_vals(k)       = m(3);
         beta_rmse_vals(k) = m(4);
         beta_mad_vals(k)  = m(5);
-        mse_vals(k)       = m(6);
+        rmse_vals(k)       = m(6);
         fdr_vals(k)       = fdr_val;
         nnz_vals(k)       = sum(est_support);
     end
@@ -85,11 +85,11 @@ function metrics_table = summarize_unisparse_methods(fit, beta0_true, beta_true,
         fpr_vals, ...
         fdr_vals, ...
         mcc_vals, ...
-        mse_vals, ...
+        rmse_vals, ...
         nnz_vals, ...
         beta_rmse_vals, ...
         beta_mad_vals, ...
         'VariableNames', {'Method', 'Lambda', 'TPR', 'FPR', ...
-                          'FDR', 'MCC', 'MSE', 'NNZ', ...
+                          'FDR', 'MCC', 'RMSE', 'NNZ', ...
                           'BetaRMSE', 'BetaMAD'});
 end

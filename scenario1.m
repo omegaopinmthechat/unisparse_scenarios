@@ -101,6 +101,13 @@ for i = 1:numel(snr_targets)
         [X, y, beta0_true, beta_true, sigma_eps, snr_emp] = ...
             generate_scenario1_data(n_obs, p, true_p, rho, target_snr);
 
+        % save the generated data
+        [X, y, beta0_true, beta_true, sigma_eps, snr_emp] = ...
+    generate_scenario1_data(n_obs, p, true_p, rho, target_snr);
+
+    save_generated_data(X, y, beta0_true, beta_true, sigma_eps, snr_emp, ...
+        SCENARIO_NUM, n_obs, p, true_p, DESIGN_LABEL, snr_label, rho, rep, out_dir);
+
         fprintf('   rep %d/%d | empirical SNR = %.3f | sigma = %.4f\n', ...
                 rep, n_reps, snr_emp, sigma_eps);
 

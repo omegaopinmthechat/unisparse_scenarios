@@ -49,7 +49,7 @@ n_obs      = 30;    % number of observations   (adjust as needed)
 p          = 20;   % number of features       (paper uses high-dimensional)
 sigma_eps  = 1;      % noise SD  (paper: sigma = 1)
 
-n_reps     = 1;      % replications  (increase to e.g. 100 for Monte-Carlo)
+n_reps     = 3;      % replications  (increase to e.g. 100 for Monte-Carlo)
 
 % UniSparse fitting options
 lambda_grid = logspace(-4, 4, 10);
@@ -75,6 +75,9 @@ for rep = 1:n_reps
 
     [X, y, beta0_true, beta_true, ~, snr_emp] = ...
         generate_scenario3_data(n_obs, p, sigma_eps);
+    % save the generated data
+    save_generated_data(X, y, beta0_true, beta_true, sigma_eps, snr_emp, ...
+        SCENARIO_NUM, n_obs, p, 10, DESIGN_LABEL, SNR_LABEL, RHO_LABEL, rep, out_dir);
 
     fprintf('\n rep %d/%d | empirical SNR = %.3f\n', rep, n_reps, snr_emp);
 
